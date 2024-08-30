@@ -1,26 +1,39 @@
 const express = require("express");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
 const app = express();
 app.use(express.json());
 
 app.get("/", async (req, res) => {
-  res.json("hello world");
+  const todos = await prisma.todo.findMany();
+  res.json(todos);
 });
 
-app.post("/todos", (req, res) => {
+app.post("/todos", async (req, res) => {
   const { title } = req.body;
-  res.json(title);
+  const todo = await prisma.todo.create({
+    data: { title },
+  });
+  res.json(todo);
 });
 
-app.put("/todos/:id", (req, res) => {
+app.put("/todos/:id", async (req, res) => {
   const { id } = req.params;
-  const { title } = req.body;
-  res.json(`${id} ${title}`);
+  const { title, completed } = req.body;
+  const todo = await prisma.todo.update({
+    where: { id: parseInt(id) },
+    data: { title, completed },
+  });
+  res.json(todo);
 });
 
-app.delete("/todos/:id", (req, res) => {
+app.delete("/todos/:id", async (req, res) => {
   const { id } = req.params;
-  res.json(id);
+  await prisma.todo.delete({
+    where: { id: parseInt(id) },
+  });
+  res.json("Todo deleted");
 });
 
 app.listen(3000, () => {
