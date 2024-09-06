@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", async (req, res) => {
+app.get("/todos", async (req, res) => {
   const todos = await prisma.todo.findMany();
   res.json(todos);
 });
